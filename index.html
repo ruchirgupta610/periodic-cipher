@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Periodic Table 3-Digit Cipher Studio</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['Fira Code', 'monospace']
+          },
+          colors: {
+            chem: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              800: '#065f46',
+              900: '#064e3b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(52, 211, 153, 0.3);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(52, 211, 153, 0.6);
+    }
+    .glow-accent {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-emerald-500 selection:text-slate-950">
+  <!-- Toast Notification Container -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2 bg-emerald-500 text-slate-950 px-4 py-3 rounded-xl font-medium shadow-xl">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span id="toast-message">Copied to clipboard</span>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 py-8 md:py-12">
+    <!-- Header -->
+    <header class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/30 text-emerald-400 text-xs font-mono uppercase tracking-wider mb-4">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Deterministic 3-Digit Elemental Cipher
+      </div>
+      <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+        Periodic Table Cipher Studio
+      </h1>
+      <p class="mt-3 text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
+        Encode English phrases into contiguous 3-digit atomic code blocks (<span class="font-mono text-emerald-400">001–118</span>, fallback <span class="font-mono text-emerald-400">201–212</span>, spaces <span class="font-mono text-emerald-400">000</span>) and decode them cleanly back into <strong>Sentence case</strong>.
+      </p>
+
+      <!-- Quick Preset Buttons -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold mr-1">Presets:</span>
+        <button onclick="applyPreset('Ruchir Gupta')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 transition-all">Ruchir Gupta</button>
+        <button onclick="applyPreset('Krishna')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 transition-all">Krishna</button>
+        <button onclick="applyPreset('Breaking Bad')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 transition-all">Breaking Bad</button>
+        <button onclick="applyPreset('Bharat')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 transition-all">Bharat</button>
+        <button onclick="applyPreset('Ajay')" class="px-3 py-1.5 rounded-lg text-xs bg-slate-900 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800 text-slate-300 transition-all">Ajay</button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      
+      <!-- Panel 1: Encoder -->
+      <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-6 glow-accent backdrop-blur-md flex flex-col justify-between">
+        <div>
+          <!-- Tab Title & Status -->
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-mono text-sm font-semibold">1</span>
+              <div>
+                <h2 class="font-bold text-lg text-white">Text Encoder</h2>
+                <p class="text-xs text-slate-400">Plain text &rarr; 3-Digit Periodic stream</p>
+              </div>
+            </div>
+            <button onclick="clearEncoder()" class="text-xs text-slate-500 hover:text-slate-300 px-2 py-1 rounded transition-colors">Clear</button>
+          </div>
+
+          <!-- Input Area -->
+          <div class="mb-4">
+            <label for="encodeInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Input Plaintext</label>
+            <textarea id="encodeInput" rows="3" placeholder="Enter text (e.g. Ruchir Gupta, Krishna)..." 
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono text-sm resize-none"></textarea>
+          </div>
+
+          <!-- Encoded Output Stream -->
+          <div class="mb-5">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">3-Digit Cipher Sequence</label>
+              <div class="flex items-center gap-2">
+                <span id="encodeChunkCount" class="text-xs font-mono text-slate-500">0 chunks (0 digits)</span>
+                <button onclick="copyToClipboard('encodeOutput')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors" title="Copy Encoded Digits">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </button>
+              </div>
+            </div>
+            <div id="encodeOutput" class="min-h-[58px] p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-emerald-400 text-sm break-all select-all flex items-center">
+              <span class="text-slate-600 italic">Numeric stream will generate here...</span>
+            </div>
+          </div>
+
+          <!-- Elemental Breakdown Visualizer -->
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Atomic Breakdown Cards</h3>
+            <div id="elementBadges" class="flex flex-wrap gap-2 min-h-[70px] p-3 rounded-xl bg-slate-950/60 border border-slate-800/60 max-h-48 overflow-y-auto">
+              <span class="text-xs text-slate-600 self-center italic">Element cards will display here dynamically...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transfer Button to Decoder -->
+        <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+          <button onclick="sendToDecoder()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-semibold text-xs tracking-wide transition-all shadow-lg shadow-emerald-900/40">
+            <span>Send to Decoder</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel 2: Decoder -->
+      <div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-6 glow-accent backdrop-blur-md flex flex-col justify-between">
+        <div>
+          <!-- Tab Title & Status -->
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 font-mono text-sm font-semibold">2</span>
+              <div>
+                <h2 class="font-bold text-lg text-white">Stream Decoder</h2>
+                <p class="text-xs text-slate-400">3-Digit chunks &rarr; Sentence Case Text</p>
+              </div>
+            </div>
+            <button onclick="clearDecoder()" class="text-xs text-slate-500 hover:text-slate-300 px-2 py-1 rounded transition-colors">Clear</button>
+          </div>
+
+          <!-- Input Area -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <label for="decodeInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Encoded Numeric Stream</label>
+              <span id="decodeValidation" class="text-xs font-mono text-slate-500">Divisible by 3: 0</span>
+            </div>
+            <textarea id="decodeInput" rows="3" placeholder="Enter continuous 3-digit numbers (e.g. 044006001077000204092015073)..." 
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-emerald-400 placeholder-slate-600 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all font-mono text-sm resize-none"></textarea>
+          </div>
+
+          <!-- Sentence Case Decoded Text -->
+          <div class="mb-5">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">Decoded Text (Sentence Case)</label>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Standard</span>
+              </div>
+              <button onclick="copyToClipboard('decodeSentenceOutput')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors" title="Copy Sentence Case Text">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </button>
+            </div>
+            <div id="decodeSentenceOutput" class="min-h-[58px] p-3 rounded-xl bg-slate-950 border border-slate-800 font-sans text-slate-100 text-base break-words select-all flex items-center">
+              <span class="text-slate-600 italic">Decoded sentence will appear here...</span>
+            </div>
+          </div>
+
+          <!-- Secondary Elemental Symbols View -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Chemical Symbols View (Preserved Tokens)</label>
+              <button onclick="copyToClipboard('decodeSymbolOutput')" class="p-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-colors" title="Copy Chemical Symbols">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </button>
+            </div>
+            <div id="decodeSymbolOutput" class="min-h-[46px] p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 font-mono text-cyan-300 text-xs break-words select-all flex items-center">
+              <span class="text-slate-600 italic">Chemical symbols will display here...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sliced Chunks Inspector -->
+        <div class="mt-6 pt-4 border-t border-slate-800">
+          <div class="flex items-center justify-between text-xs text-slate-500">
+            <span>Slicing Rule: Fixed 3-digit chunks</span>
+            <span id="decodeChunksSummary">0 total tokens</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Reference Protocol Specs -->
+    <section class="mt-12 bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6">
+      <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-300 mb-4 flex items-center gap-2">
+        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        3-Digit Cipher Specification Reference
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+          <div class="text-emerald-400 font-bold mb-1">001 &ndash; 118: Chemical Elements</div>
+          <p class="text-slate-400 font-sans leading-relaxed">
+            Atomic numbers formatted to 3 digits. Matches all 118 official elements (e.g. <span class="text-slate-200">001</span>=H, <span class="text-slate-200">006</span>=C, <span class="text-slate-200">044</span>=Ru, <span class="text-slate-200">077</span>=Ir, <span class="text-slate-200">118</span>=Og).
+          </p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+          <div class="text-teal-400 font-bold mb-1">201 &ndash; 212: Fallback Alphabet</div>
+          <p class="text-slate-400 font-sans leading-relaxed">
+            Covers the 12 English letters with no single-letter elemental symbol:
+            <span class="text-slate-300">A(201), D(202), E(203), G(204), J(205), L(206), M(207), Q(208), R(209), T(210), X(211), Z(212)</span>.
+          </p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+          <div class="text-cyan-400 font-bold mb-1">000: Word Delimiter & Punctuation</div>
+          <p class="text-slate-400 font-sans leading-relaxed">
+            <span class="text-slate-200">000</span> encodes spaces cleanly without breaking the 3-digit fixed-width segmentation rule. Non-alphabet chars remain clean.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // --- 1. Periodic Table Master Data (1 to 118) ---
+    const PERIODIC_TABLE = [
+      { num: 1, sym: "H", name: "Hydrogen" },
+      { num: 2, sym: "He", name: "Helium" },
+      { num: 3, sym: "Li", name: "Lithium" },
+      { num: 4, sym: "Be", name: "Beryllium" },
+      { num: 5, sym: "B", name: "Boron" },
+      { num: 6, sym: "C", name: "Carbon" },
+      { num: 7, sym: "N", name: "Nitrogen" },
+      { num: 8, sym: "O", name: "Oxygen" },
+      { num: 9, sym: "F", name: "Fluorine" },
+      { num: 10, sym: "Ne", name: "Neon" },
+      { num: 11, sym: "Na", name: "Sodium" },
+      { num: 12, sym: "Mg", name: "Magnesium" },
+      { num: 13, sym: "Al", name: "Aluminium" },
+      { num: 14, sym: "Si", name: "Silicon" },
+      { num: 15, sym: "P", name: "Phosphorus" },
+      { num: 16, sym: "S", name: "Sulfur" },
+      { num: 17, sym: "Cl", name: "Chlorine" },
+      { num: 18, sym: "Ar", name: "Argon" },
+      { num: 19, sym: "K", name: "Potassium" },
+      { num: 20, sym: "Ca", name: "Calcium" },
+      { num: 21, sym: "Sc", name: "Scandium" },
+      { num: 22, sym: "Ti", name: "Titanium" },
+      { num: 23, sym: "V", name: "Vanadium" },
+      { num: 24, sym: "Cr", name: "Chromium" },
+      { num: 25, sym: "Mn", name: "Manganese" },
+      { num: 26, sym: "Fe", name: "Iron" },
+      { num: 27, sym: "Co", name: "Cobalt" },
+      { num: 28, sym: "Ni", name: "Nickel" },
+      { num: 29, sym: "Cu", name: "Copper" },
+      { num: 30, sym: "Zn", name: "Zinc" },
+      { num: 31, sym: "Ga", name: "Gallium" },
+      { num: 32, sym: "Ge", name: "Germanium" },
+      { num: 33, sym: "As", name: "Arsenic" },
+      { num: 34, sym: "Se", name: "Selenium" },
+      { num: 35, sym: "Br", name: "Bromine" },
+      { num: 36, sym: "Kr", name: "Krypton" },
+      { num: 37, sym: "Rb", name: "Rubidium" },
+      { num: 38, sym: "Sr", name: "Strontium" },
+      { num: 39, sym: "Y", name: "Yttrium" },
+      { num: 40, sym: "Zr", name: "Zirconium" },
+      { num: 41, sym: "Nb", name: "Niobium" },
+      { num: 42, sym: "Mo", name: "Molybdenum" },
+      { num: 43, sym: "Tc", name: "Technetium" },
+      { num: 44, sym: "Ru", name: "Ruthenium" },
+      { num: 45, sym: "Rh", name: "Rhodium" },
+      { num: 46, sym: "Pd", name: "Palladium" },
+      { num: 47, sym: "Ag", name: "Silver" },
+      { num: 48, sym: "Cd", name: "Cadmium" },
+      { num: 49, sym: "In", name: "Indium" },
+      { num: 50, sym: "Sn", name: "Tin" },
+      { num: 51, sym: "Sb", name: "Antimony" },
+      { num: 52, sym: "Te", name: "Tellurium" },
+      { num: 53, sym: "I", name: "Iodine" },
+      { num: 54, sym: "Xe", name: "Xenon" },
+      { num: 55, sym: "Cs", name: "Caesium" },
+      { num: 56, sym: "Ba", name: "Barium" },
+      { num: 57, sym: "La", name: "Lanthanum" },
+      { num: 58, sym: "Ce", name: "Cerium" },
+      { num: 59, sym: "Pr", name: "Praseodymium" },
+      { num: 60, sym: "Nd", name: "Neodymium" },
+      { num: 61, sym: "Pm", name: "Promethium" },
+      { num: 62, sym: "Sm", name: "Samarium" },
+      { num: 63, sym: "Eu", name: "Europium" },
+      { num: 64, sym: "Gd", name: "Gadolinium" },
+      { num: 65, sym: "Tb", name: "Terbium" },
+      { num: 66, sym: "Dy", name: "Dysprosium" },
+      { num: 67, sym: "Ho", name: "Holmium" },
+      { num: 68, sym: "Er", name: "Erbium" },
+      { num: 69, sym: "Tm", name: "Thulium" },
+      { num: 70, sym: "Yb", name: "Ytterbium" },
+      { num: 71, sym: "Lu", name: "Lutetium" },
+      { num: 72, sym: "Hf", name: "Hafnium" },
+      { num: 73, sym: "Ta", name: "Tantalum" },
+      { num: 74, sym: "W", name: "Tungsten" },
+      { num: 75, sym: "Re", name: "Rhenium" },
+      { num: 76, sym: "Os", name: "Osmium" },
+      { num: 77, sym: "Ir", name: "Iridium" },
+      { num: 78, sym: "Pt", name: "Platinum" },
+      { num: 79, sym: "Au", name: "Gold" },
+      { num: 80, sym: "Hg", name: "Mercury" },
+      { num: 81, sym: "Tl", name: "Thallium" },
+      { num: 82, sym: "Pb", name: "Lead" },
+      { num: 83, sym: "Bi", name: "Bismuth" },
+      { num: 84, sym: "Po", name: "Polonium" },
+      { num: 85, sym: "At", name: "Astatine" },
+      { num: 86, sym: "Rn", name: "Radon" },
+      { num: 87, sym: "Fr", name: "Francium" },
+      { num: 88, sym: "Ra", name: "Radium" },
+      { num: 89, sym: "Ac", name: "Actinium" },
+      { num: 90, sym: "Th", name: "Thorium" },
+      { num: 91, sym: "Pa", name: "Protactinium" },
+      { num: 92, sym: "U", name: "Uranium" },
+      { num: 93, sym: "Np", name: "Neptunium" },
+      { num: 94, sym: "Pu", name: "Plutonium" },
+      { num: 95, sym: "Am", name: "Americium" },
+      { num: 96, sym: "Cm", name: "Curium" },
+      { num: 97, sym: "Bk", name: "Berkelium" },
+      { num: 98, sym: "Cf", name: "Californium" },
+      { num: 99, sym: "Es", name: "Einsteinium" },
+      { num: 100, sym: "Fm", name: "Fermium" },
+      { num: 101, sym: "Md", name: "Mendelevium" },
+      { num: 102, sym: "No", name: "Nobelium" },
+      { num: 103, sym: "Lr", name: "Lawrencium" },
+      { num: 104, sym: "Rf", name: "Rutherfordium" },
+      { num: 105, sym: "Db", name: "Dubnium" },
+      { num: 106, sym: "Sg", name: "Seaborgium" },
+      { num: 107, sym: "Bh", name: "Bohrium" },
+      { num: 108, sym: "Hs", name: "Hassium" },
+      { num: 109, sym: "Mt", name: "Meitnerium" },
+      { num: 110, sym: "Ds", name: "Darmstadtium" },
+      { num: 111, sym: "Rg", name: "Roentgenium" },
+      { num: 112, sym: "Cn", name: "Copernicium" },
+      { num: 113, sym: "Nh", name: "Nihonium" },
+      { num: 114, sym: "Fl", name: "Flerovium" },
+      { num: 115, sym: "Mc", name: "Moscovium" },
+      { num: 116, sym: "Lv", name: "Livermorium" },
+      { num: 117, sym: "Ts", name: "Tennessine" },
+      { num: 118, sym: "Og", name: "Oganesson" }
+    ];
+
+    // Build lookup maps
+    const SYM_TO_ELEMENT = {};
+    const CODE_TO_DATA = {};
+
+    PERIODIC_TABLE.forEach(elem => {
+      SYM_TO_ELEMENT[elem.sym.toUpperCase()] = elem;
+      const codeStr = String(elem.num).padStart(3, '0');
+      CODE_TO_DATA[codeStr] = {
+        symbol: elem.sym,
+        name: elem.name,
+        type: 'element',
+        atomicNumber: elem.num
+      };
+    });
+
+    // --- 2. Fallback Letters (201 to 212) ---
+    // The 12 letters without single-letter elements: A, D, E, G, J, L, M, Q, R, T, X, Z
+    const FALLBACK_LETTERS = ['A', 'D', 'E', 'G', 'J', 'L', 'M', 'Q', 'R', 'T', 'X', 'Z'];
+    const CHAR_TO_FALLBACK_CODE = {};
+    
+    FALLBACK_LETTERS.forEach((ch, idx) => {
+      const codeNum = 201 + idx;
+      const codeStr = String(codeNum);
+      CHAR_TO_FALLBACK_CODE[ch] = codeStr;
+      CODE_TO_DATA[codeStr] = {
+        symbol: ch,
+        name: `Letter ${ch} (Fallback)`,
+        type: 'fallback',
+        code: codeNum
+      };
+    });
+
+    // Space code
+    CODE_TO_DATA['000'] = {
+      symbol: ' ',
+      name: 'Space Delimiter',
+      type: 'space',
+      code: 0
+    };
+
+    // --- 3. Optimized Tokenizer Engine ---
+    function tokenizeWord(word) {
+      const s = word.trim();
+      if (!s) return [];
+
+      let bestTokens = null;
+
+      function backtrack(idx, current) {
+        if (idx === s.length) {
+          // Objective: minimize fallback letters first, then minimize total token count
+          const fallbackCount = current.filter(t => t.type === 'fallback').length;
+          const score = [fallbackCount, current.length];
+
+          if (!bestTokens) {
+            bestTokens = { score, tokens: [...current] };
+          } else {
+            if (score[0] < bestTokens.score[0] || (score[0] === bestTokens.score[0] && score[1] < bestTokens.score[1])) {
+              bestTokens = { score, tokens: [...current] };
+            }
+          }
+          return;
+        }
+
+        // 1. Try 2-letter element match
+        if (idx + 1 < s.length) {
+          const twoChar = (s[idx] + s[idx + 1]).toUpperCase();
+          if (SYM_TO_ELEMENT[twoChar]) {
+            const elem = SYM_TO_ELEMENT[twoChar];
+            current.push({
+              symbol: elem.sym,
+              code: String(elem.num).padStart(3, '0'),
+              name: elem.name,
+              type: 'element',
+              atomicNumber: elem.num
+            });
+            backtrack(idx + 2, current);
+            current.pop();
+          }
+        }
+
+        // 2. Try 1-letter element match
+        const oneChar = s[idx].toUpperCase();
+        if (SYM_TO_ELEMENT[oneChar]) {
+          const elem = SYM_TO_ELEMENT[oneChar];
+          current.push({
+            symbol: elem.sym,
+            code: String(elem.num).padStart(3, '0'),
+            name: elem.name,
+            type: 'element',
+            atomicNumber: elem.num
+          });
+          backtrack(idx + 1, current);
+          current.pop();
+        }
+
+        // 3. Fallback letter (201-212)
+        if (CHAR_TO_FALLBACK_CODE[oneChar]) {
+          current.push({
+            symbol: oneChar,
+            code: CHAR_TO_FALLBACK_CODE[oneChar],
+            name: `Letter ${oneChar}`,
+            type: 'fallback',
+            atomicNumber: parseInt(CHAR_TO_FALLBACK_CODE[oneChar], 10)
+          });
+          backtrack(idx + 1, current);
+          current.pop();
+        }
+
+        // 4. Any other non-alphabet character (e.g. punctuation / numbers)
+        if (!/^[A-Za-z]$/.test(s[idx])) {
+          current.push({
+            symbol: s[idx],
+            code: '---',
+            name: `Char '${s[idx]}'`,
+            type: 'raw'
+          });
+          backtrack(idx + 1, current);
+          current.pop();
+        }
+      }
+
+      backtrack(0, []);
+      return bestTokens ? bestTokens.tokens : [];
+    }
+
+    // --- 4. Sentence Case Formatter ---
+    function toSentenceCase(text) {
+      if (!text) return '';
+      // Lowercase everything first
+      const lower = text.toLowerCase();
+      
+      // Capitalize first letter of string and after sentence delimiters (. ! ?)
+      return lower.replace(/(^\s*|[.!?]\s+)([a-z])/g, function(match, separator, letter) {
+        return separator + letter.toUpperCase();
+      });
+    }
+
+    // --- 5. Encoding Routine ---
+    function handleEncode() {
+      const input = document.getElementById('encodeInput').value;
+      const outputElem = document.getElementById('encodeOutput');
+      const badgeContainer = document.getElementById('elementBadges');
+      const chunkCountElem = document.getElementById('encodeChunkCount');
+
+      if (!input.trim()) {
+        outputElem.innerHTML = '<span class="text-slate-600 italic">Numeric stream will generate here...</span>';
+        badgeContainer.innerHTML = '<span class="text-xs text-slate-600 self-center italic">Element cards will display here dynamically...</span>';
+        chunkCountElem.textContent = '0 chunks (0 digits)';
+        return;
+      }
+
+      // Split into words by spaces while preserving space boundaries
+      const words = input.split(/(\s+)/);
+      let stream = '';
+      const allTokens = [];
+
+      words.forEach(segment => {
+        if (!segment) return;
+        if (/^\s+$/.test(segment)) {
+          // Add space tokens
+          for (let i = 0; i < segment.length; i++) {
+            stream += '000';
+            allTokens.push({
+              symbol: '␣',
+              code: '000',
+              name: 'Space',
+              type: 'space'
+            });
+          }
+        } else {
+          const tokens = tokenizeWord(segment);
+          tokens.forEach(tok => {
+            if (tok.code !== '---') {
+              stream += tok.code;
+            } else {
+              stream += tok.symbol; // Preserve raw punctuation
+            }
+            allTokens.push(tok);
+          });
+        }
+      });
+
+      // Update Encoded Display
+      outputElem.textContent = stream;
+      const totalDigits = stream.replace(/[^0-9]/g, '').length;
+      chunkCountElem.textContent = `${Math.floor(totalDigits / 3)} chunks (${totalDigits} digits)`;
+
+      // Render Badges
+      badgeContainer.innerHTML = '';
+      allTokens.forEach(tok => {
+        const badge = document.createElement('div');
+        if (tok.type === 'element') {
+          badge.className = 'flex flex-col items-center justify-center p-2 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-center min-w-[54px]';
+          badge.innerHTML = `
+            <span class="text-[9px] font-mono text-emerald-400 font-semibold">${tok.code}</span>
+            <span class="text-base font-bold text-white tracking-tight">${tok.symbol}</span>
+            <span class="text-[9px] text-emerald-300/80 truncate max-w-[60px]" title="${tok.name}">${tok.name}</span>
+          `;
+        } else if (tok.type === 'fallback') {
+          badge.className = 'flex flex-col items-center justify-center p-2 rounded-lg bg-amber-950/60 border border-amber-500/40 text-center min-w-[54px]';
+          badge.innerHTML = `
+            <span class="text-[9px] font-mono text-amber-400 font-semibold">${tok.code}</span>
+            <span class="text-base font-bold text-amber-200">${tok.symbol}</span>
+            <span class="text-[9px] text-amber-400/80">Fallback</span>
+          `;
+        } else if (tok.type === 'space') {
+          badge.className = 'flex flex-col items-center justify-center p-2 rounded-lg bg-slate-800/60 border border-slate-700 text-center min-w-[40px]';
+          badge.innerHTML = `
+            <span class="text-[9px] font-mono text-slate-400">000</span>
+            <span class="text-xs text-slate-300 font-mono">SPACE</span>
+          `;
+        } else {
+          badge.className = 'flex flex-col items-center justify-center p-2 rounded-lg bg-slate-800/40 border border-slate-700 text-center min-w-[40px]';
+          badge.innerHTML = `
+            <span class="text-[9px] font-mono text-slate-400">RAW</span>
+            <span class="text-sm text-slate-300 font-bold">${tok.symbol}</span>
+          `;
+        }
+        badgeContainer.appendChild(badge);
+      });
+    }
+
+    // --- 6. Decoding Routine ---
+    function handleDecode() {
+      const input = document.getElementById('decodeInput').value;
+      const sentenceOutput = document.getElementById('decodeSentenceOutput');
+      const symbolOutput = document.getElementById('decodeSymbolOutput');
+      const validationElem = document.getElementById('decodeValidation');
+      const summaryElem = document.getElementById('decodeChunksSummary');
+
+      // Strip whitespace and dashes if user grouped them
+      const cleanDigits = input.replace(/[\s\-_,.]/g, '');
+
+      if (!cleanDigits) {
+        sentenceOutput.innerHTML = '<span class="text-slate-600 italic">Decoded sentence will appear here...</span>';
+        symbolOutput.innerHTML = '<span class="text-slate-600 italic">Chemical symbols will display here...</span>';
+        validationElem.textContent = 'Divisible by 3: 0';
+        validationElem.className = 'text-xs font-mono text-slate-500';
+        summaryElem.textContent = '0 total tokens';
+        return;
+      }
+
+      const isValidDivisible = cleanDigits.length % 3 === 0;
+      validationElem.textContent = `Length: ${cleanDigits.length} (${isValidDivisible ? 'Valid / 3' : 'Incomplete block!'})`;
+      validationElem.className = isValidDivisible ? 'text-xs font-mono text-emerald-400 font-semibold' : 'text-xs font-mono text-amber-400 font-semibold';
+
+      let rawDecodedWord = '';
+      let symbolSequence = [];
+      let totalTokens = 0;
+
+      for (let i = 0; i < cleanDigits.length; i += 3) {
+        const chunk = cleanDigits.slice(i, i + 3);
+        totalTokens++;
+
+        if (chunk.length < 3) {
+          rawDecodedWord += `[?${chunk}]`;
+          symbolSequence.push(`[?${chunk}]`);
+          continue;
+        }
+
+        if (CODE_TO_DATA[chunk]) {
+          const item = CODE_TO_DATA[chunk];
+          rawDecodedWord += item.symbol;
+          symbolSequence.push(item.symbol);
+        } else {
+          // Unknown token code
+          rawDecodedWord += '?';
+          symbolSequence.push(`[${chunk}?]`);
+        }
+      }
+
+      // Format strictly into Sentence Case
+      const sentenceText = toSentenceCase(rawDecodedWord);
+
+      sentenceOutput.textContent = sentenceText || '(Empty string)';
+      symbolOutput.textContent = symbolSequence.join('-').replace(/- -/g, ' ␣ ');
+      summaryElem.textContent = `${totalTokens} total tokens decoded`;
+    }
+
+    // --- Utilities & Handlers ---
+    function copyToClipboard(elemId) {
+      const elem = document.getElementById(elemId);
+      const text = elem.innerText || elem.textContent;
+      if (!text || text.includes('will generate') || text.includes('will appear')) return;
+
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Copied to clipboard!');
+      } catch (err) {
+        showToast('Failed to copy');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-20');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-20');
+      }, 2200);
+    }
+
+    function applyPreset(name) {
+      document.getElementById('encodeInput').value = name;
+      handleEncode();
+      // Auto-transfer to decode preview
+      sendToDecoder();
+    }
+
+    function sendToDecoder() {
+      const encodeOutput = document.getElementById('encodeOutput').innerText;
+      if (!encodeOutput || encodeOutput.includes('Numeric stream')) return;
+      // Strip non-digits
+      const digitsOnly = encodeOutput.replace(/[^0-9]/g, '');
+      document.getElementById('decodeInput').value = digitsOnly;
+      handleDecode();
+      showToast('Encoded stream transferred to Decoder!');
+    }
+
+    function clearEncoder() {
+      document.getElementById('encodeInput').value = '';
+      handleEncode();
+    }
+
+    function clearDecoder() {
+      document.getElementById('decodeInput').value = '';
+      handleDecode();
+    }
+
+    // Attach real-time event listeners
+    window.onload = function () {
+      const encodeInput = document.getElementById('encodeInput');
+      const decodeInput = document.getElementById('decodeInput');
+
+      encodeInput.addEventListener('input', handleEncode);
+      decodeInput.addEventListener('input', handleDecode);
+
+      // Preload with user's name
+      applyPreset('Ruchir Gupta');
+    };
+  </script>
+</body>
+</html>
